@@ -34,7 +34,7 @@ export function ExpectedValue() {
               <div className="stat__value">{fmtM(ve, 2)}</div>
               <div className="stat__hint">
                 {data.states
-                  .map((s, j) => `${priors[j].toFixed(2)}×${fmt(data.payoffs[i][j].value, 0)}`)
+                  .map((_s, j) => `${priors[j].toFixed(2)}×${fmt(data.payoffs[i][j].value, 0)}`)
                   .join(' + ')}
                 {isBest && ' · óptima'}
               </div>

@@ -696,3 +696,27 @@ table.data-table td:first-child {
   margin: 16px 0;
   border: none;
 }
+
+/* ---------- Barras de exportación a PDF ---------- */
+.export-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.export-bar--page {
+  padding: 10px 14px;
+  background: var(--primary-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  justify-content: space-between;
+}
+.export-bar__hint {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+.export-bar .btn {
+  padding: 6px 12px;
+  font-size: 13px;
+}
