@@ -15,12 +15,14 @@ import { OverviewPage } from './pages/OverviewPage';
 import { DecisionAnalysisPage } from './pages/DecisionAnalysisPage';
 import { SampleInformationPage } from './pages/SampleInformationPage';
 import { GameTheoryPage } from './pages/GameTheoryPage';
+import { QueuingPage } from './pages/QueuingPage';
 
 const PAGE_COMPONENTS: Record<PageId, ComponentType> = {
   overview: OverviewPage,
   decision: DecisionAnalysisPage,
   sample: SampleInformationPage,
   game: GameTheoryPage,
+  queuing: QueuingPage,
 };
 
 type Mode = 'analysis' | 'presentation';
@@ -70,6 +72,7 @@ function AnalysisMode() {
       decision: [],
       sample: [],
       game: [],
+      queuing: [],
     };
     for (const s of SECTIONS) map[s.page].push(s);
     return map;

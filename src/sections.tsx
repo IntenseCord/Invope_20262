@@ -19,8 +19,12 @@ import { BayesAnalysis } from './components/BayesAnalysis';
 import { SampleInformation } from './components/SampleInformation';
 import { GameTheory } from './components/GameTheory';
 import { ResultSummary } from './components/ResultSummary';
+import { QueuingOverview } from './components/queuing/QueuingOverview';
+import { QueuingMetrics } from './components/queuing/QueuingMetrics';
+import { QueuingProbabilities } from './components/queuing/QueuingProbabilities';
+import { QueuingImprovement } from './components/queuing/QueuingImprovement';
 
-export type PageId = 'overview' | 'decision' | 'sample' | 'game';
+export type PageId = 'overview' | 'decision' | 'sample' | 'game' | 'queuing';
 
 export interface SectionDef {
   id: string;
@@ -38,6 +42,7 @@ export const PAGES: { id: PageId; label: string }[] = [
   { id: 'decision', label: 'Análisis de decisión' },
   { id: 'sample', label: 'Información muestral' },
   { id: 'game', label: 'Teoría de juegos' },
+  { id: 'queuing', label: 'Teoría de colas' },
 ];
 
 export const SECTIONS: SectionDef[] = [
@@ -55,6 +60,10 @@ export const SECTIONS: SectionDef[] = [
   { id: 'sample', navLabel: 'Valor de la información', page: 'sample', presentation: true, Component: SampleInformation, description: 'Valor esperado de la información muestral (VEIM) y eficiencia del estudio.' },
   { id: 'game', navLabel: 'Juego y punto de silla', page: 'game', presentation: true, Component: GameTheory, description: 'Análisis de teoría de juegos: estrategias, punto de silla y valor del juego.' },
   { id: 'result', navLabel: 'Resultado', page: 'overview', presentation: true, Component: ResultSummary, description: 'Conclusión y recomendación final derivada de todos los análisis.' },
+  { id: 'queuing-system', navLabel: 'Sistema y parámetros', page: 'queuing', presentation: true, Component: QueuingOverview, description: 'Modelo M/M/1: elementos del sistema, datos de entrada y cálculo de λ y μ.' },
+  { id: 'queuing-metrics', navLabel: 'Características operativas', page: 'queuing', presentation: true, Component: QueuingMetrics, description: 'Métricas M/M/1: P0, Lq, L, Wq, W y Pw con fórmula e interpretación.' },
+  { id: 'queuing-prob', navLabel: 'Probabilidades Pn', page: 'queuing', presentation: true, Component: QueuingProbabilities, description: 'Distribución del número de clientes en el sistema: P(n=k) y P(n>k).' },
+  { id: 'queuing-improve', navLabel: 'Mejora y comparación', page: 'queuing', presentation: true, Component: QueuingImprovement, description: 'Escenario de mejora (μ mayor) y comparación antes vs. después.' },
 ];
 
 /** Orden explícito de las diapositivas del modo presentación. */
@@ -68,6 +77,10 @@ export const PRESENTATION_ORDER: string[] = [
   'sample',
   'game',
   'result',
+  'queuing-system',
+  'queuing-metrics',
+  'queuing-prob',
+  'queuing-improve',
 ];
 
 export function presentationSections(): SectionDef[] {

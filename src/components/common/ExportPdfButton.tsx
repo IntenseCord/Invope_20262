@@ -18,6 +18,10 @@ interface ExportPdfButtonProps {
   label?: string;
   /** Estilo primario (relleno azul). */
   primary?: boolean;
+  /** Empresa para el encabezado del PDF (si se omite, usa la del problema). */
+  company?: string;
+  /** Título del documento para el encabezado (si se omite, usa el del problema). */
+  documentTitle?: string;
 }
 
 export function ExportPdfButton({
@@ -26,6 +30,8 @@ export function ExportPdfButton({
   description,
   label = 'Exportar PDF',
   primary,
+  company,
+  documentTitle,
 }: ExportPdfButtonProps) {
   const { data } = useProblem();
   const [busy, setBusy] = useState(false);
@@ -36,8 +42,8 @@ export function ExportPdfButton({
     setBusy(true);
     try {
       await exportElementToPdf(element, {
-        company: data.meta.company,
-        documentTitle: data.meta.title,
+        company: company ?? data.meta.company,
+        documentTitle: documentTitle ?? data.meta.title,
         sectionTitle,
         description,
       });

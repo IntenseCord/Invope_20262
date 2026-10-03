@@ -7,7 +7,13 @@
 import { PAGES, SECTIONS, type PageId } from '../sections';
 import { ExportPdfButton } from '../components/common/ExportPdfButton';
 
-export function PageRenderer({ page }: { page: PageId }) {
+interface PageRendererProps {
+  page: PageId;
+  /** Empresa y título para el encabezado de los PDF de esta página. */
+  exportMeta?: { company: string; documentTitle: string };
+}
+
+export function PageRenderer({ page, exportMeta }: PageRendererProps) {
   const sections = SECTIONS.filter((s) => s.page === page);
   const pageLabel = PAGES.find((p) => p.id === page)?.label ?? 'Documento';
   const pageRootId = `page-root-${page}`;
@@ -23,6 +29,8 @@ export function PageRenderer({ page }: { page: PageId }) {
           sectionTitle={pageLabel}
           description={`Documento completo de la sección “${pageLabel}” con todos sus análisis.`}
           label="Exportar página (PDF)"
+          company={exportMeta?.company}
+          documentTitle={exportMeta?.documentTitle}
           primary
         />
       </div>
@@ -44,6 +52,8 @@ export function PageRenderer({ page }: { page: PageId }) {
                   targetId={`section-${s.id}`}
                   sectionTitle={s.navLabel}
                   description={s.description}
+                  company={exportMeta?.company}
+                  documentTitle={exportMeta?.documentTitle}
                 />
               </div>
               <Component />
