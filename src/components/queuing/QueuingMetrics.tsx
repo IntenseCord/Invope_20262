@@ -6,7 +6,13 @@ import { useQueuing } from '../../state/QueuingContext';
 import { Card } from '../common/Card';
 import { HintButtons } from '../common/HintButtons';
 import { fmt, fmtPct } from '../../utils/format';
-import { MINUTES_PER_DAY, type MM1Metrics } from '../../types/queuingTypes';
+import {
+  MINUTES_PER_DAY,
+  normalizeTimeUnit,
+  convertTimeToDisplay,
+  type MM1Metrics,
+  type TimeDisplayUnit,
+} from '../../types/queuingTypes';
 
 interface Row {
   char: string;
@@ -16,10 +22,18 @@ interface Row {
   meaning: string;
 }
 
-export function buildMetricRows(m: MM1Metrics, rateUnit: string): Row[] {
+export function buildMetricRows(
+  m: MM1Metrics,
+  rateUnit: string,
+  timeUnit: TimeDisplayUnit
+): Row[] {
   const gap = m.mu - m.lambda;
-  const wqMin = m.wq * MINUTES_PER_DAY;
-  const wMin = m.w * MINUTES_PER_DAY;
+  const wqDisplay = convertTimeToDisplay(m.wq, timeUnit);
+  const wDisplay = convertTimeToDisplay(m.w, timeUnit);
+  const timeSuffix = timeUnit === 'minutos' ? 'min' : 'días';
+  const wqText = `${fmt(wqDisplay, timeUnit === 'minutos' ? 3 : 7)} ${timeSuffix}`;
+  const wText = `${fmt(wDisplay, timeUnit === 'minutos' ? 3 : 6)} ${timeSuffix}`;
+
   return [
     {
       char: 'P₀',
@@ -46,15 +60,21 @@ export function buildMetricRows(m: MM1Metrics, rateUnit: string): Row[] {
       char: 'Wq',
       formula: 'Lq / λ',
       substitution: `${fmt(m.lq, 6)} / ${fmt(m.lambda, 2)}`,
-      result: `${fmt(m.wq, 7)} días`,
-      meaning: `Espera media antes de empezar a ser atendido (≈ ${fmt(wqMin, 4)} min).`,
+      result: wqText,
+      meaning:
+        timeUnit === 'minutos'
+          ? `Espera media antes de empezar a ser atendido (≈ ${fmt(m.wq * MINUTES_PER_DAY, 3)} min).`
+          : `Espera media antes de empezar a ser atendido (≈ ${fmt(m.wq * MINUTES_PER_DAY, 4)} min).`,
     },
     {
       char: 'W',
       formula: '1 / (μ − λ)',
       substitution: `1 / ${fmt(gap, 2)}`,
-      result: `${fmt(m.w, 6)} días`,
-      meaning: `Tiempo total en el sistema, desde que llega hasta que termina (≈ ${fmt(wMin, 3)} min).`,
+      result: wText,
+      meaning:
+        timeUnit === 'minutos'
+          ? `Tiempo total en el sistema, desde que llega hasta que termina (≈ ${fmt(m.w * MINUTES_PER_DAY, 3)} min).`
+          : `Tiempo total en el sistema, desde que llega hasta que termina (≈ ${fmt(m.w * MINUTES_PER_DAY, 3)} min).`,
     },
     {
       char: 'Pw',
@@ -67,9 +87,10 @@ export function buildMetricRows(m: MM1Metrics, rateUnit: string): Row[] {
 }
 
 export function QueuingMetrics() {
-  const { data, results } = useQueuing();
+  const { data, results, setTimeUnit } = useQueuing();
   const m = results.base.metrics;
-  const rows = buildMetricRows(m, data.labels.rateUnit);
+  const timeUnit = normalizeTimeUnit(data.labels.timeUnit);
+  const rows = buildMetricRows(m, data.labels.rateUnit, timeUnit);
 
   if (!m.stable) {
     return (
@@ -88,6 +109,21 @@ export function QueuingMetrics() {
       subtitle={`Sistema actual · λ = ${fmt(m.lambda, 2)}; μ = ${fmt(m.mu, 2)} ${data.labels.rateUnit}`}
       badge="Actual"
     >
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        <div className="mode-switch" aria-label="Unidad de tiempo">
+          {(['días', 'minutos'] as const).map((unit) => (
+            <button
+              key={unit}
+              type="button"
+              className={timeUnit === unit ? 'active' : ''}
+              onClick={() => setTimeUnit(unit)}
+            >
+              {unit}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <table className="data-table">
         <thead>
           <tr>
@@ -124,7 +160,9 @@ export function QueuingMetrics() {
           hints={{
             why: 'Estas medidas resumen el desempeño del sistema: cuánto se usa el servidor (ρ, Pw), cuántos clientes hay en promedio (L, Lq) y cuánto esperan (W, Wq).',
             meaning:
-              'Los tiempos W y Wq están en días porque λ y μ se expresan por día. Multiplicando por 1440 se obtienen en minutos.',
+              timeUnit === 'minutos'
+                ? 'Los tiempos W y Wq se muestran en minutos para facilitar su lectura; en días se usa el factor de 1440 minutos por día.'
+                : 'Los tiempos W y Wq están en días porque λ y μ se expresan por día. Multiplicando por 1440 se obtienen en minutos.',
           }}
         />
       </div>

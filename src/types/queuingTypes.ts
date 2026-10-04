@@ -11,6 +11,16 @@
 /** Minutos por día (constante de conversión de unidades). */
 export const MINUTES_PER_DAY = 1440;
 
+export type TimeDisplayUnit = 'días' | 'minutos';
+
+export function normalizeTimeUnit(value?: string): TimeDisplayUnit {
+  return value === 'minutos' ? 'minutos' : 'días';
+}
+
+export function convertTimeToDisplay(valueInDays: number, unit: TimeDisplayUnit): number {
+  return unit === 'minutos' ? valueInDays * MINUTES_PER_DAY : valueInDays;
+}
+
 /** Datos de entrada del modelo M/M/1 (única fuente de entrada). */
 export interface QueuingData {
   meta: {
@@ -26,7 +36,7 @@ export interface QueuingData {
     customer: string; // 'Ejecución de pipeline (run)'
     server: string; // 'Runner (1 solo)'
     rateUnit: string; // 'runs/día'
-    timeUnit: string; // 'días'
+    timeUnit: TimeDisplayUnit; // 'días' | 'minutos'
   };
   /** λ — tasa de llegada (en rateUnit). */
   lambda: number;

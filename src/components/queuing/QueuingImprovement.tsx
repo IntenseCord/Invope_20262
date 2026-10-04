@@ -7,20 +7,34 @@ import { Card } from '../common/Card';
 import { NumberField } from '../common/NumberField';
 import { HintButtons } from '../common/HintButtons';
 import { fmt, fmtPct } from '../../utils/format';
-import { MINUTES_PER_DAY } from '../../types/queuingTypes';
+import {
+  convertTimeToDisplay,
+  normalizeTimeUnit,
+} from '../../types/queuingTypes';
 
 export function QueuingImprovement() {
   const { data, results, setImprovementFactor } = useQueuing();
   const { base, improved } = results;
   const b = base.metrics;
   const i = improved.metrics;
+  const timeUnit = normalizeTimeUnit(data.labels.timeUnit);
 
   const comparison: { label: string; before: string; after: string; note: string }[] = [
     { label: 'P₀', before: fmt(b.p0, 4), after: fmt(i.p0, 4), note: 'Más tiempo con el sistema vacío.' },
     { label: 'Lq', before: fmt(b.lq, 5), after: fmt(i.lq, 5), note: 'La fila, ya mínima, se reduce más.' },
     { label: 'L', before: fmt(b.l, 4), after: fmt(i.l, 4), note: 'Menos clientes en el sistema.' },
-    { label: 'Wq (días)', before: fmt(b.wq, 7), after: fmt(i.wq, 7), note: 'Menor espera antes de ser atendido.' },
-    { label: 'W (días)', before: fmt(b.w, 6), after: fmt(i.w, 6), note: 'Menor tiempo total en el sistema.' },
+    {
+      label: `Wq (${timeUnit})`,
+      before: fmt(convertTimeToDisplay(b.wq, timeUnit), timeUnit === 'minutos' ? 3 : 7),
+      after: fmt(convertTimeToDisplay(i.wq, timeUnit), timeUnit === 'minutos' ? 3 : 7),
+      note: 'Menor espera antes de ser atendido.',
+    },
+    {
+      label: `W (${timeUnit})`,
+      before: fmt(convertTimeToDisplay(b.w, timeUnit), timeUnit === 'minutos' ? 3 : 6),
+      after: fmt(convertTimeToDisplay(i.w, timeUnit), timeUnit === 'minutos' ? 3 : 6),
+      note: 'Menor tiempo total en el sistema.',
+    },
     { label: 'Pw', before: fmt(b.pw, 4), after: fmt(i.pw, 4), note: 'Menor probabilidad de esperar.' },
   ];
 
@@ -95,7 +109,9 @@ export function QueuingImprovement() {
         <div className="stat stat--good">
           <div className="stat__label">W: tiempo total por cliente</div>
           <div className="stat__value">
-            {fmt(b.w * MINUTES_PER_DAY, 2)} → {fmt(i.w * MINUTES_PER_DAY, 2)} min
+            {fmt(convertTimeToDisplay(b.w, timeUnit), timeUnit === 'minutos' ? 2 : 6)} →{' '}
+            {fmt(convertTimeToDisplay(i.w, timeUnit), timeUnit === 'minutos' ? 2 : 6)}{' '}
+            {timeUnit === 'minutos' ? 'min' : 'días'}
           </div>
           <div className="stat__hint">Se reduce de forma clara</div>
         </div>
